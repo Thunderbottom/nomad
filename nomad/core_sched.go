@@ -782,6 +782,9 @@ NEXT_VOLUME:
 			continue
 		}
 
+		// TODO: move this logic into the denormalize logic so that a
+		// volume can just be checked for past claims!
+
 		// we only call the claim release RPC if the volume has claims
 		// that no longer have valid allocations. otherwise we'd send
 		// out a lot of do-nothing RPCs.

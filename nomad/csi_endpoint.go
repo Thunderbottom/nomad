@@ -587,6 +587,7 @@ func (v *CSIVolume) Unpublish(args *structs.CSIVolumeUnpublishRequest, reply *st
 	}
 
 NODE_DETACHED:
+	// TODO: shouldn't we only controller unpublish if there weren't any node claims left?
 	err = v.controllerUnpublishVolume(vol, claim)
 	if err != nil {
 		return err
@@ -620,6 +621,8 @@ func (v *CSIVolume) nodeUnpublishVolume(vol *structs.CSIVolume, claim *structs.C
 	// alloc on the node
 	allocIDs := []string{}
 	state := v.srv.fsm.State()
+	// TODO: we should never call this from here; it should be private
+	// to state_store and get called on any query instead
 	vol, err := state.CSIVolumeDenormalize(memdb.NewWatchSet(), vol)
 	if err != nil {
 		return err
@@ -708,6 +711,8 @@ func (v *CSIVolume) controllerUnpublishVolume(vol *structs.CSIVolume, claim *str
 	// we only send a controller detach if a Nomad client no longer has
 	// any claim to the volume, so we need to check the status of claimed
 	// allocations
+	// TODO: we shouldn't ever call this here; move it into the state_store
+	// and call it internally on every query
 	vol, err = state.CSIVolumeDenormalize(ws, vol)
 	if err != nil {
 		return err
